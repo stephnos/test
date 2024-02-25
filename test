@@ -1,0 +1,161 @@
+
+#  The following is a template of the design.
+#  you will need to complete the definition of each class, including class attributes,
+# instance attributes, and instance methods. However, please do not change the class 
+# names provided below.
+
+# IMPORTANT: In order to get your program pass the test, make sure your class constructors 
+# use exactly the same parameter names as in the test examples provided at the end of this template. 
+
+# ================Your codes start here=============
+# Stephanos Papatsaras
+# February 18th 2024
+# Object-Oriented Programming
+
+# I used https://www.youtube.com/watch?v=Ej_02ICOIgs&t=1975s&ab_channel=freeCodeCamp.org (20:69) in order to help me expect types in the -
+# __init__ methods. ex:"co:str"
+
+# All __str__ methods provide a string representation of their boat instance 
+class Boat:
+    all_boats = [] # Defined in the Boat class to hold list of Boats created 
+
+    def __init__(self, co:str, br:str, yr:float):
+        self.color = co
+        self.brand = br
+        self.year = yr
+        Boat.all_boats.append(self) # Adds instance to the list so all boats can be stored
+
+    def get_boat_age(self, cur_year):
+      # Returns age of boat by subtracting its year from the current year
+        return cur_year - self.year 
+    def __str__(self):
+        return f"Boat(Color: {self.color}, Brand: {self.brand}, Year: {self.year})"
+
+# Assigns engine speed depending on tech
+class Engine:
+    def __init__(self, tech='gas'):
+        self.tech = tech
+        if tech == 'gas':
+          self.engine_speed = 80
+        else:
+          self.engine_speed = 20
+
+    def get_engine_speed(self):
+        return self.engine_speed
+    def __str__(self):
+        return f"Engine(Technology: {self.tech}, Engine Speed: {self.engine_speed} mph)"
+
+class Motorboat(Boat):
+    def __init__(self, co:str, br:str, yr:float, fl:float, fe:float):
+        super().__init__(co, br, yr)
+        self.fuel_level = fl
+        self.fuel_efficiency = fe
+        self.engine = Engine() 
+
+    def get_max_speed(self):
+        return self.engine.get_engine_speed()
+
+    # Max distance formula is remaining level of fuel * how efficient it is
+    # If boat doesn't have enough fuel, remaining distance is printed
+    def cal_travel_time(self, distance):
+        max_distance = self.fuel_level * self.fuel_efficiency
+        if distance <= max_distance:
+            return distance / self.get_max_speed()
+        else:
+            remaining_distance = distance - max_distance
+            print(f"This motorboat runs out of fuel {remaining_distance} miles away from the destination.")
+            return max_distance / self.get_max_speed()
+    def __str__(self):
+        return f"Motorboat(Color: {self.color}, Brand: {self.brand}, Year: {self.year}, Fuel Level: {self.fuel_level} gallons, Fuel Efficiency: {self.fuel_efficiency} mpg)"
+
+class Pedalboat(Boat):
+    def __init__(self, co:str, br:str, yr:float, ps:float):
+        super().__init__(co, br, yr)
+        self.pedal_speed = ps
+
+    #  check if a pedalboat’s speed is within the realistic range [10, 20]
+    #  if not, sets to the closest value (10 or 20)
+    def check_speed(self):
+        if 10 <= self.pedal_speed <= 20:
+          return True
+        else:
+          if self.pedal_speed > 20:
+             self.pedal_speed = 20
+          elif self.pedal_speed < 10:
+             self.pedal_speed = 10
+          return False
+
+    # returns the correct pedalling speed
+    def get_pedal_speed(self):
+      self.check_speed()
+      return self.pedal_speed
+
+    def cal_travel_time(self, distance):
+        return distance / self.get_pedal_speed()
+    def __str__(self):
+        return f"Pedalboat(Color: {self.color}, Brand: {self.brand}, Year: {self.year}, Pedal Speed: {self.pedal_speed} mph)"
+# Eboat class uses pedal speed and an electric engine
+class Eboat(Boat):
+    def __init__(self, co:str, br:str, yr:float, ps:float, bt:float):
+        super().__init__(co, br, yr)
+        self.pedal_speed = ps
+        self.battery_time = bt
+        self.engine = Engine(tech='electric')
+        
+    # type of engine speed and pedal speed simultaneously is the max speed
+    def get_max_speed(self):
+        return self.engine.get_engine_speed() + self.pedal_speed
+
+    # Determines whether the whole distance can be covered within the battery time at max speed
+    # Finds out how much distance to go after battery runs out
+    def cal_travel_time(self, distance):
+        max_speed = self.get_max_speed()
+        distance_covered_by_battery = max_speed * self.battery_time
+        if distance <= distance_covered_by_battery:
+            return distance / max_speed
+        else:
+            remaining_distance = distance - distance_covered_by_battery
+            # Remaining distance to be going at pedal speed(time)
+            time_at_pedal_speed = remaining_distance / self.pedal_speed
+            # Total travel time = battery time + time at pedal speed
+            return self.battery_time + time_at_pedal_speed
+    def __str__(self):
+        return f"Eboat(Color: {self.color}, Brand: {self.brand}, Year: {self.year}, Pedal Speed: {self.pedal_speed} mph, Battery Time: {self.battery_time} hours)"
+        
+# ============ End of your codes here ==================
+
+
+
+
+
+
+# ============No modification beyond here =============
+# the following is a list of test instances, please do not modify them
+if __name__ == '__main__':
+  # arguments: co - color, br - brand, yr - year, tech - technology used in engine
+  boat1=Boat(co='Black', br='Trek', yr=2012)
+  engine1=Engine(tech='gas')
+  print(engine1.get_engine_speed())
+
+  # arguments: co - color, br - brand, yr - year, ps - pedal speed
+  pedalboat1=Pedalboat(co='Red', br='GIANT', yr=2015, ps=15)
+  pedalboat2=Pedalboat(co='Red', br='GIANT', yr=2015, ps=30)
+  print(pedalboat1.get_pedal_speed())
+  print(pedalboat2.get_pedal_speed())
+  print(pedalboat1.cal_travel_time(300))
+
+  # arguments: co - color, br - brand, yr - year, ps - pedal speed, bt - battery time 
+  eboat1=Eboat(co='Blue', br='Basis', yr=2018, ps=15, bt=10)
+  print(eboat1.get_max_speed())
+  print(eboat1.cal_travel_time(350))
+  print(eboat1.cal_travel_time(650))
+
+  # arguments: co - color, br - brand, yr - year, fl - fuel level, fe - fuel efficiency
+  motorboat1=Motorboat(co='Silver', br='YAMAHA', yr=2013, fl=40, fe=12)
+  print(motorboat1.get_max_speed())
+  print(motorboat1.cal_travel_time(300))
+  print(motorboat1.cal_travel_time(600))
+
+  # get the age of all bikes created
+  for b in Boat.all_boats:
+    print(b.get_boat_age(2023))
